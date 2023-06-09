@@ -14,7 +14,7 @@ app.use(express.json());
 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://<username>:<password>@cluster0.jeg7pmd.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.jeg7pmd.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -37,7 +37,7 @@ async function run() {
         // await client.close();
     }
 }
-// run().catch(console.dir);
+run().catch(console.dir);
 
 app.get('/', (req, res) => {
     res.send('art in motion is running');
