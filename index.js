@@ -30,9 +30,17 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
+        const usersCollection = client.db("Art_In_Motion").collection("users");
         const classesCollection = client.db("Art_In_Motion").collection("classes");
         const insttractorsCollection = client.db("Art_In_Motion").collection("instructors");
         const enrolled_coursesCollection = client.db("Art_In_Motion").collection("enrolled-courses");
+
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
 
         app.get('/classes', async(req, res) => {
             const result = await classesCollection.find().toArray();
@@ -64,7 +72,6 @@ async function run() {
 
         app.delete('/my-course/:id', async(req, res) => {
             const id = req.params.id;
-            console.log(id);
             const query = { _id: new ObjectId(id)}
             const result = await enrolled_coursesCollection.deleteOne(query);
             res.send(result);
