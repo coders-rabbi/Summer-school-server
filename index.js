@@ -62,7 +62,13 @@ async function run() {
             res.send(result);
         })
 
-        
+        app.delete('/my-course/:id', async(req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { _id: new ObjectId(id)}
+            const result = await enrolled_coursesCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
 
