@@ -10,8 +10,23 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// userName: Art_in_Motion,
-// password: tRxZoW8KNSJvtJKA
+const verfiyJWT = (req, res, next) => {
+    const authorization = req.headers.authorization;
+    if (!authorization) {
+        return res.status(401).send({ error: 'Unauthorization access denied' });
+    }
+    // bearer token
+    const token = authorization.split(' ')[1];
+
+    jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ error: 'Unauthorization access denied' })
+        }
+        req.decoded = decoded;
+        next();
+    })
+
+}
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -38,7 +53,7 @@ async function run() {
 
         app.post('/jwt', (req, res) => {
             const user = req.body;
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN, {expiresIn: '1h'})
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '1h' })
             res.send(token);
         })
 
@@ -96,11 +111,18 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/my-course', async (req, res) => {
+        app.get('/my-course', verfiyJWT, async (req, res) => {
             const email = req.query.email;
+
             if (!email) {
                 res.send([]);
             }
+
+            const decodedEmail = req.decoded.email;
+            if (email !== decodedEmail) {
+                return res.status(403).send({ error: 'forbiden access' })
+            }
+
             const query = { user_email: email }
             const result = await enrolled_coursesCollection.find(query).toArray();
             res.send(result);
