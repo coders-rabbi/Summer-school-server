@@ -54,15 +54,19 @@ async function run() {
             res.send(result);
         })
 
-        app.patch('users/admin/:id', async (req, res) => {
+        app.patch('/users/:id', async (req, res) => {
             const id = req.params.id;
+            console.log(id);
+            const userRole = req.body;
+            console.log(userRole);
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
-                    role: 'Admin',
+                    role: `${userRole.role}`,
                 },
             };
-            // const result = await usersCollection.
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.send(result);
         })
 
         //class related apis
@@ -80,7 +84,7 @@ async function run() {
         //enrollments related apis
         app.post('/enrolled-courses', async (req, res) => {
             const enrolledCourse = req.body;
-            console.log(enrolledCourse);
+            // console.log(enrolledCourse);
             const result = await enrolled_coursesCollection.insertOne(enrolledCourse)
             res.send(result);
         })
