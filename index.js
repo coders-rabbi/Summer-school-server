@@ -35,44 +35,69 @@ async function run() {
         const insttractorsCollection = client.db("Art_In_Motion").collection("instructors");
         const enrolled_coursesCollection = client.db("Art_In_Motion").collection("enrolled-courses");
 
-
+        // user related apis
         app.post('/users', async (req, res) => {
             const user = req.body;
+            console.log(user);
+            const query = { userEmail: user.userEmail }
+            const existingUser = await usersCollection.findOne(query);
+            console.log('existing user', existingUser);
+            if (existingUser) {
+                return res.send({ message: 'user already exists' })
+            }
             const result = await usersCollection.insertOne(user);
             res.send(result);
         })
 
-        app.get('/classes', async(req, res) => {
+        app.get('/users', async (req, res) => {
+            const result = await usersCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.patch('users/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    role: 'Admin',
+                },
+            };
+            // const result = await usersCollection.
+        })
+
+        //class related apis
+        app.get('/classes', async (req, res) => {
             const result = await classesCollection.find().toArray();
             res.send(result)
         });
 
-
-        app.get('/instructors', async(req, res) => {
+        //insturctors related apis
+        app.get('/instructors', async (req, res) => {
             const result = await insttractorsCollection.find().toArray();
             res.send(result)
         });
 
-        app.post('/enrolled-courses', async(req, res) => {
+        //enrollments related apis
+        app.post('/enrolled-courses', async (req, res) => {
             const enrolledCourse = req.body;
             console.log(enrolledCourse);
             const result = await enrolled_coursesCollection.insertOne(enrolledCourse)
             res.send(result);
         })
 
-        app.get('/my-course', async(req, res) => {
+        app.get('/my-course', async (req, res) => {
             const email = req.query.email;
             if (!email) {
                 res.send([]);
             }
-            const query = { user_email: email}
+            const query = { user_email: email }
             const result = await enrolled_coursesCollection.find(query).toArray();
             res.send(result);
         })
 
-        app.delete('/my-course/:id', async(req, res) => {
+        app.delete('/my-course/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await enrolled_coursesCollection.deleteOne(query);
             res.send(result);
         })
