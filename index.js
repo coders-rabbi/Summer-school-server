@@ -36,6 +36,12 @@ async function run() {
         const insttractorsCollection = client.db("Art_In_Motion").collection("instructors");
         const enrolled_coursesCollection = client.db("Art_In_Motion").collection("enrolled-courses");
 
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, env.process.ACCESS_TOKEN, { expiresIn: '1h' })
+            res.send(token);
+        })
+
         // user related apis
         app.post('/users', async (req, res) => {
             const user = req.body;
