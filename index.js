@@ -78,7 +78,6 @@ async function run() {
 
         app.patch('/users/:id', async (req, res) => {
             const id = req.params.id;
-            console.log(id);
             const userRole = req.body;
             console.log(userRole);
             const filter = { _id: new ObjectId(id) };
@@ -91,11 +90,37 @@ async function run() {
             res.send(result);
         })
 
+
+
         //class related apis
         app.get('/classes', async (req, res) => {
             const result = await classesCollection.find().toArray();
             res.send(result)
         });
+
+
+        app.post('/classes', async (req, res) => {
+            const addClass = req.body;
+            const result = await classesCollection.insertOne(addClass);
+            res.send(result);
+        });
+
+
+        app.patch('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const updateStatus = req.body;
+            console.log(updateStatus);
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    status: `${updateStatus.status}`,
+                },
+            };
+            const result = await classesCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
 
         //insturctors related apis
         app.get('/instructors', async (req, res) => {
@@ -111,22 +136,23 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/my-course', verfiyJWT, async (req, res) => {
+        app.get('/my-course', async (req, res) => {
             const email = req.query.email;
 
             if (!email) {
                 res.send([]);
             }
 
-            const decodedEmail = req.decoded.email;
-            if (email !== decodedEmail) {
-                return res.status(403).send({ error: 'forbiden access' })
-            }
+            // const decodedEmail = req.decoded.email;
+            // if (email !== decodedEmail) {
+            //     return res.status(403).send({ error: 'forbiden access' })
+            // }
 
             const query = { user_email: email }
             const result = await enrolled_coursesCollection.find(query).toArray();
             res.send(result);
         })
+
 
         app.delete('/my-course/:id', async (req, res) => {
             const id = req.params.id;
