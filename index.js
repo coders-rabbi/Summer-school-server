@@ -44,7 +44,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const usersCollection = client.db("Art_In_Motion").collection("users");
         const classesCollection = client.db("Art_In_Motion").collection("classes");
@@ -108,13 +108,28 @@ async function run() {
 
         app.patch('/classes/:id', async (req, res) => {
             const id = req.params.id;
-            console.log(id);
+            // console.log(id);
             const updateStatus = req.body;
-            console.log(updateStatus);
+            // console.log(updateStatus);
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
                     status: `${updateStatus.status}`,
+                },
+            };
+            const result = await classesCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
+        app.put('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const feedback = req.body;
+            console.log(feedback);
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    reason: `${feedback.reason}`,
                 },
             };
             const result = await classesCollection.updateOne(filter, updateDoc);
